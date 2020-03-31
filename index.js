@@ -1,5 +1,4 @@
 const express = require('express');
-const app = express();
 const server = require('http').createServer(app);
 const io = require('socket.io').listen(server);
 
@@ -8,42 +7,21 @@ io.set('origins', '*:*');
 
 // variables
 let connections = [];
+let workers = [];
 
 
-app.get('/bugs/:id', function (request, response) {
-  let bugId = request.params.id;
+io.sockets.on('connection', function (socket) {
+  console.log(`Success connection on bug`);
+  connections.push(socket);
 
-  io.sockets.on('connection', function (socket) {
-    console.log(`Success connection on bug ${bugId}`);
-    connections.push({'bug': bugId, 'socket': socket});
-    console.log('new conn', socket);
-    io.sockets.emit('success', {success: 'success'});
-    
-    socket.on('disconnect', function (socket) {
-      console.log(`Disconnect on bug ${bugId}`);
-      connections.splice(connections.indexOf({'bug': bugId, 'socket': socket}), 1);
-    });
+  socket.on('addUser', function (data) {
+    workers.push(data);
+    console.log('New worker on bug', data);
+    io.sockets.emit('showUser', data);
   })
 
-  response.writeHead(200);
-  response.write('hi');
-  response.end();
+  socket.on('disconnect', function (socket) {
+    console.log(`Disconnect on bug`);
+    connections.splice(connections.indexOf(socket), 1);
+  });
 })
-
-
-app.get('/bugs/:id/workers', function (request, response) {
-  let bugId = request.params.id;
-  response.sendFile(__dirname + '/views/bug-workers.html');
-})
-
-
-app.get('/workers/:email/bugs', function (request, response) {
-  let email = request.params.email;
-  response.sendFile(__dirname + '/views/worker-bugs.html');
-})
-
-
-app.get('/bugs', function (request, response) {
-  response.sendFile(__dirname + '/views/all-bugs.html');
-})
-
