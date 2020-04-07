@@ -8,8 +8,7 @@ io.set('origins', '*:*');
 // variables
 let connections = [];
 let workers = {};
-let worker;
-let bugID;
+let bugs = {};
 
 
 io.sockets.on('connection', function (socket) {
@@ -18,30 +17,33 @@ io.sockets.on('connection', function (socket) {
   socket.on('addUser', function (data) {
     let bugID = data.bugID;
     let user = data.email;
-    socket.bugID = bugID;
-    socket.user = user;
-    bugID = bugID;
-    worker = user;
 
-    if (workers[bugID] === undefined) {
-      workers[bugID] =  [];
-      workers[bugID].push(user);
-    } else if (workers[bugID].includes(user) !== true) {
-      workers[bugID].push(user);
+    if (workers[socket.id] === undefined) {
+      workers[socket.id] = user;
+    } else {
+      workers[socket.id] = user;
     }
-    io.sockets.emit('showUser', workers);
+
+    bugs[bugID] = workers;
+
+    io.sockets.emit('showAllUsers', bugs);
     connections.push(socket);
     console.log(connections);
     console.log('all workers', workers);
+    console.log('all bugs', bugs)
   })
 
-  console.warn('all conns', connections);
-  socket.on('disconnect', function (socket) {
-    if (bugID !== undefined && worker !== undefined) {
-      workers[bugID].splice(workers[bugID].indexOf(worker), 1);
-      console.log(`${worker} disconnect on bug ${bugID}`);
+  socket.on('disconnect', function () {
+    console.log(`disconnected socket ${socket.id}`);
+
+    if (workers[socket.id] !== undefined) {
+      socket.broadcast.emit('deleteUser', { id: socket.id, email: workers[socket.id] });
+
+      delete workers[socket.id];
+      console.log("workers after disconn", workers);
     }
 
     connections.splice(connections.indexOf(socket), 1);
+
   });
 })
