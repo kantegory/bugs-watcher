@@ -8,15 +8,20 @@ io.set('origins', '*:*');
 // variables
 let connections = [];
 let workers = {};
+let worker;
+let bugID;
 
 
 io.sockets.on('connection', function (socket) {
   console.log(`Success connection on bug`);
-  connections.push(socket);
 
   socket.on('addUser', function (data) {
     let bugID = data.bugID;
     let user = data.email;
+    socket.bugID = bugID;
+    socket.user = user;
+    bugID = bugID;
+    worker = user;
 
     if (workers[bugID] === undefined) {
       workers[bugID] =  [];
@@ -25,12 +30,18 @@ io.sockets.on('connection', function (socket) {
       workers[bugID].push(user);
     }
     io.sockets.emit('showUser', workers);
-
+    connections.push(socket);
+    console.log(connections);
     console.log('all workers', workers);
   })
 
+  console.warn('all conns', connections);
   socket.on('disconnect', function (socket) {
-    console.log(`Disconnect on bug`);
+    if (bugID !== undefined && worker !== undefined) {
+      workers[bugID].splice(workers[bugID].indexOf(worker), 1);
+      console.log(`${worker} disconnect on bug ${bugID}`);
+    }
+
     connections.splice(connections.indexOf(socket), 1);
   });
 })
