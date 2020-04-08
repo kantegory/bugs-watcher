@@ -1,0 +1,16 @@
+[Unit]
+Description=WS-server for bugs workflow watching for Bugzilla 5.0+
+After=multi-user.target
+Conflicts=getty@tty1.service
+
+[Service]
+Type=simple
+ExecStart=/usr/local/share/bugs-watcher/index.js
+StandardInput=tty-force
+WorkingDirectory=/usr/local/share/bugs-watcher/
+Restart=always
+User=bugs-watcher
+Group=bugs-watcher
+
+[Install]
+WantedBy=multi-user.target
