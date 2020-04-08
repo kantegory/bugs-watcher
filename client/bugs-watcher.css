@@ -1,0 +1,11 @@
+.bugs-watcher {
+  color: #009966 !important;
+}
+
+.worker::before {
+  content: ","
+}
+
+.worker:last-child::before {
+  content: "" !important
+}

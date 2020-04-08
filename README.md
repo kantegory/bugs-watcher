@@ -13,7 +13,7 @@ git clone https://gitlab.eterfund.ru/kantegory/bugs-watcher.git
 
 Move to directory:
 ```bash
-cd bugs-watcher
+cd bugs-watcher/server
 ```
 
 Install all deps:
