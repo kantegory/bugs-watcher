@@ -4,6 +4,10 @@ window.addEventListener('load', function() {
   let url = 'hostname:port';
   let socket = io.connect(url, {'forceNew': true});
 
+  let siteUrl = window.location.origin;
+
+  let userToken = localStorage[siteUrl] === undefined ? undefined : JSON.parse(localStorage[siteUrl]).userToken;
+
   let workers = document.querySelector("#bz_show_bug_column_2 > table > tbody");
   workers.innerHTML = `
     <tr><th class="field_label bugs-watcher">В работе у:</th><td class="field-value" id="workers"></td></tr>
