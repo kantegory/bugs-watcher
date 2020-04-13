@@ -64,9 +64,12 @@ io.sockets.on('connection', function (socket) {
     console.log(`disconnected socket ${socket.id}`);
 
     if (workers[socket.id] !== undefined) {
-      socket.broadcast.emit('deleteUser', { id: socket.id, email: workers[socket.id].email });
       
       let bugID = workers[socket.id].bugID;
+
+      if (bugs[bugID][socket.id] !== undefined) {
+        socket.broadcast.emit('deleteUser', { id: socket.id, email: workers[socket.id].email });
+      }
 
       delete workers[socket.id];
 
